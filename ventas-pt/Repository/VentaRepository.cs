@@ -19,18 +19,26 @@ namespace ventas_pt.Repository
         }
 
 
-        public async Task<List<VentaDetalle>> ObtenerDetallesDeVentas(int daysLimit)
+        public async Task<List<Venta>> ObtenerDetallesDeVentas(int daysLimit)
         {
             var fechaLimite = DateTime.Today.AddDays(-30);
 
             using (var context = new ApplicationDbContext(_options))
             {
-                var detallesVentas = await context.VentaDetalles
-                    .Include(d => d.IdVentaNavigation)
-                        .ThenInclude(v => v.IdLocalNavigation)
-                    .Include(p => p.IdProductoNavigation)
-                        .ThenInclude(p => p.IdMarcaNavigation)
-                    .Where(d => d.IdVentaNavigation.Fecha >= fechaLimite)
+                //var detallesVentas = await context.VentaDetalles
+                //    .Include(d => d.IdVentaNavigation)
+                //        .ThenInclude(v => v.IdLocalNavigation)
+                //    .Include(p => p.IdProductoNavigation)
+                //        .ThenInclude(p => p.IdMarcaNavigation)
+                //    .Where(d => d.IdVentaNavigation.Fecha >= fechaLimite)
+                //    .ToListAsync();
+
+                var detallesVentas = await context.Venta
+                    .Include(v => v.VentaDetalles)
+                        .ThenInclude(vd => vd.IdProductoNavigation)
+                            .ThenInclude(p => p.IdMarcaNavigation)
+                    .Include(v => v.IdLocalNavigation)
+                    .Where(v => v.Fecha >= fechaLimite)
                     .ToListAsync();
 
                 return detallesVentas;
